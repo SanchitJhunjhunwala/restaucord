@@ -1,0 +1,27 @@
+name: Sync Google Sheet → CSV
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # every hour (change if needed)
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch Google Sheet as CSV
+        run: |
+          curl -L \
+          "https://docs.google.com/spreadsheets/d/${{ secrets.SHEET_ID }}/gviz/tq?tqx=out:csv&sheet=${{ secrets.SHEET_TAB }}" \
+          -o data/restaurants.csv
+
+      - name: Commit if changed
+        run: |
+          git config user.name "sheet-sync-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/restaurants.csv
+          git diff --quiet || git commit -m "Sync data from Google Sheet"
+          git push
