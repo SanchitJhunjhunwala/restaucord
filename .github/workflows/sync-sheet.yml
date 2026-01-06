@@ -1,6 +1,9 @@
 name: Sync Google Sheet → CSV
 
 on:
+  permissions:
+    contents: write
+
   schedule:
     - cron: "0 * * * *"   # every hour (change if needed)
   workflow_dispatch:
