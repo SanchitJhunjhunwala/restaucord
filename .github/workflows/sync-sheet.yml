@@ -23,10 +23,17 @@ jobs:
           "https://docs.google.com/spreadsheets/d/${{ secrets.SHEET_ID }}/gviz/tq?tqx=out:csv&sheet=${{ secrets.SHEET_TAB }}" \
           -o data/restaurants.csv
 
-      - name: Commit if changed
+      - name: Commit updated CSV
         run: |
           git config user.name "sheet-sync-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.email "sheet-sync-bot@users.noreply.github.com"
+
           git add data/restaurants.csv
-          git diff --quiet || git commit -m "Sync data from Google Sheet"
-          git push
+
+          if git diff --cached --quiet; then
+            echo "No changes detected — skipping commit"
+          else
+            git commit -m "Sync restaurants.csv from Google Sheet"
+            git push
+          fi
+
